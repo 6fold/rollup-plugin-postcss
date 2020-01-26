@@ -299,6 +299,12 @@ Type: `id => void`
 
 A function to be invoked when an import for CSS file is detected.
 
+### preserveModules
+
+Create a separate file output for each CSS file and add an `import "./component.css"` to `component.css.js` chunks.
+
+If `sourceMap` is on a `component.css.map` will also be output.
+
 ## License
 
 MIT &copy; [EGOIST](https://github.com/egoist)

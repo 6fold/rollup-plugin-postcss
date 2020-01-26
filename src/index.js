@@ -1,4 +1,5 @@
 import path from 'path'
+import fs from 'fs'
 import { createFilter } from 'rollup-pluginutils'
 import Concat from 'concat-with-sourcemaps'
 import Loaders from './loaders'
@@ -193,6 +194,34 @@ export default (options = {}) => {
           source: map
         }
         bundle[mapFile.fileName] = mapFile
+      }
+    },
+
+    async renderChunk(code, chunk, options) {
+      if (options.dir && options.preserveModules && (chunk.facadeModuleId || '').endsWith('.css')) {
+        const cssName = path.basename(chunk.facadeModuleId)
+        const cssOutputName = cssName.replace('.module', '')
+        const cssChunk = [...extracted.values()].find(({ id }) => id.includes(cssName))
+
+        if (cssChunk) {
+          const cssOutputPath = path.resolve(options.dir, path.dirname(chunk.fileName) + '/' + cssOutputName)
+          const cssMapOutputPath = cssOutputPath + '.map'
+
+          try {
+            await fs.promises.mkdir(path.dirname(cssOutputPath), { recursive: true })
+          } catch (_) { /* Already exists... */}
+
+          await fs.promises.writeFile(cssOutputPath, cssChunk.code)
+
+          if (cssChunk.map) {
+            await fs.promises.writeFile(cssMapOutputPath, JSON.stringify(cssChunk.map))
+          }
+
+          return {
+            code: `import "./${cssOutputName}";\n${code}`,
+            map: { mappings: '' },
+          }
+        }
       }
     }
   }
