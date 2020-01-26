@@ -204,7 +204,7 @@ export default (options = {}) => {
         const cssChunk = [...extracted.values()].find(({ id }) => id.includes(cssName))
 
         if (cssChunk) {
-          const cssOutputPath = path.resolve(options.dir, path.dirname(chunk.fileName) + '/' + cssOutputName)
+          const cssOutputPath = path.resolve(option.dir, path.dirname(chunk.fileName) + '/' + cssOutputName)
           const cssMapOutputPath = cssOutputPath + '.map'
 
           try {
