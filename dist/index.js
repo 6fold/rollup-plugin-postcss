@@ -925,9 +925,9 @@ var index = ((options = {}) => {
       })();
     },
 
-    renderChunk(code, chunk, options) {
+    renderChunk(code, chunk, option) {
       return _asyncToGenerator(function* () {
-        if (options.dir && options.preserveModules && (chunk.facadeModuleId || '').endsWith('.css')) {
+        if (option.dir && options.preserveModules && (chunk.facadeModuleId || '').endsWith('.css')) {
           const cssName = path.basename(chunk.facadeModuleId);
           const cssOutputName = cssName.replace('.module', '');
           const cssChunk = [...extracted.values()].find(({

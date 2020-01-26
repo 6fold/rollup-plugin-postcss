@@ -197,8 +197,8 @@ export default (options = {}) => {
       }
     },
 
-    async renderChunk(code, chunk, options) {
-      if (options.dir && options.preserveModules && (chunk.facadeModuleId || '').endsWith('.css')) {
+    async renderChunk(code, chunk, option) {
+      if (option.dir && options.preserveModules && (chunk.facadeModuleId || '').endsWith('.css')) {
         const cssName = path.basename(chunk.facadeModuleId)
         const cssOutputName = cssName.replace('.module', '')
         const cssChunk = [...extracted.values()].find(({ id }) => id.includes(cssName))
