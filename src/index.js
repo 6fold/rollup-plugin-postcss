@@ -201,7 +201,7 @@ export default (options = {}) => {
       if (option.dir && options.preserveModules && (chunk.facadeModuleId || '').endsWith('.css')) {
         const cssName = path.basename(chunk.facadeModuleId)
         const cssOutputName = cssName.replace('.module', '')
-        const cssChunk = [...extracted.values()].find(({ id }) => id.includes(cssName))
+        const cssChunk = [...extracted.values()].find(({ id }) => path.basename(id) === cssName)
 
         if (cssChunk) {
           const cssOutputPath = path.resolve(option.dir, path.dirname(chunk.fileName) + '/' + cssOutputName)

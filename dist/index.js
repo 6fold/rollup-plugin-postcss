@@ -932,7 +932,7 @@ var index = ((options = {}) => {
           const cssOutputName = cssName.replace('.module', '');
           const cssChunk = [...extracted.values()].find(({
             id
-          }) => id.includes(cssName));
+          }) => path.basename(id) === cssName);
 
           if (cssChunk) {
             const cssOutputPath = path.resolve(option.dir, path.dirname(chunk.fileName) + '/' + cssOutputName);
