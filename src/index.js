@@ -267,18 +267,24 @@ export default (options = {}) => {
           const cssMapOutputPath = cssOutputPath + '.map'
 
           try {
-            await fs.promises.mkdir(path.dirname(cssOutputPath), { recursive: true })
-          } catch (_) { /* Already exists... */}
+            await new Promise((resolve, reject) => {
+              fs.mkdir(path.dirname(cssOutputPath), { recursive: true }, err => err ? reject(err) : resolve())
+            })
+          } catch { /* Already exists... */}
 
-          await fs.promises.writeFile(cssOutputPath, cssChunk.code)
+          await new Promise((resolve, reject) => {
+            fs.writeFile(cssOutputPath, cssChunk.code, err => err ? reject(err) : resolve())
+          })
 
           if (cssChunk.map) {
-            await fs.promises.writeFile(cssMapOutputPath, JSON.stringify(cssChunk.map))
+            await new Promise((resolve, reject) => {
+              fs.writeFile(cssMapOutputPath, cssChunk.map, err => err ? reject(err) : resolve())
+            })
           }
 
           return {
             code: `import "./${cssOutputName}";\n${code}`,
-            map: { mappings: '' },
+            map: { mappings: '' }
           }
         }
       }
