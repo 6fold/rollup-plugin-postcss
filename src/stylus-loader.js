@@ -1,13 +1,14 @@
 import pify from 'pify'
 import { loadModule } from './utils/load-module'
 
+/* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
 export default {
   name: 'stylus',
   test: /\.(styl|stylus)$/,
   async process({ code }) {
     const stylus = loadModule('stylus')
     if (!stylus) {
-      throw new Error(`You need to install "stylus" packages in order to process Stylus files`)
+      throw new Error('You need to install "stylus" packages in order to process Stylus files')
     }
 
     const style = stylus(code, {

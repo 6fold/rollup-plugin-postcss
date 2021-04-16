@@ -9,7 +9,7 @@ import { loadModule } from './utils/load-module'
 const threadPoolSize = process.env.UV_THREADPOOL_SIZE || 4
 const workQueue = new PQueue({ concurrency: threadPoolSize - 1 })
 
-const moduleRe = /^~([a-z0-9]|@).+/i
+const moduleRe = /^~([a-z\d]|@).+/i
 
 const getUrlOfPartial = url => {
   const parsedUrl = path.parse(url)
@@ -21,6 +21,7 @@ const resolvePromise = pify(resolve)
 // List of supported SASS modules in the order of preference
 const sassModuleIds = ['node-sass', 'sass']
 
+/* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
 export default {
   name: 'sass',
   test: /\.(sass|scss)$/,
@@ -28,11 +29,12 @@ export default {
     return new Promise((resolve, reject) => {
       const sass = loadSassOrThrow()
       const render = pify(sass.render.bind(sass))
-      return workQueue.add(() =>
+      const data = this.options.data || ''
+      workQueue.add(() =>
         render({
           ...this.options,
           file: this.id,
-          data: code,
+          data: data + code,
           indentedSyntax: /\.sass$/.test(this.id),
           sourceMap: this.sourceMap,
           importer: [
@@ -61,10 +63,10 @@ export default {
               // Give precedence to importing a partial
               resolvePromise(partialUrl, options)
                 .then(finishImport)
-                .catch(err => {
+                .catch(error => {
                   if (
-                    err.code === 'MODULE_NOT_FOUND' ||
-                    err.code === 'ENOENT'
+                    error.code === 'MODULE_NOT_FOUND' ||
+                    error.code === 'ENOENT'
                   ) {
                     resolvePromise(moduleUrl, options)
                       .then(finishImport)
@@ -76,13 +78,14 @@ export default {
             }
           ].concat(this.options.importer || [])
         })
-          .then(res => {
-            for (const file of res.stats.includedFiles) {
+          .then(result => {
+            for (const file of result.stats.includedFiles) {
               this.dependencies.add(file)
             }
+
             resolve({
-              code: res.css.toString(),
-              map: res.map && res.map.toString()
+              code: result.css.toString(),
+              map: result.map && result.map.toString()
             })
           })
           .catch(reject)
@@ -102,8 +105,8 @@ function loadSassOrThrow() {
 
   // Throwing exception if module can't be loaded
   throw new Error(
-    `You need to install one of the following packages: ` +
+    'You need to install one of the following packages: ' +
     sassModuleIds.map(moduleId => `"${moduleId}"`).join(', ') + ' ' +
-    `in order to process SASS files`
+    'in order to process SASS files'
   )
 }
