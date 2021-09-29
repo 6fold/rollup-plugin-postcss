@@ -278,7 +278,7 @@ export default (options = {}) => {
 
           if (cssChunk.map) {
             await new Promise((resolve, reject) => {
-              fs.writeFile(cssMapOutputPath, cssChunk.map, err => err ? reject(err) : resolve())
+              fs.writeFile(cssMapOutputPath, JSON.stringify(cssChunk.map), err => err ? reject(err) : resolve())
             })
           }
 

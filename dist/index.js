@@ -1053,7 +1053,7 @@ var index = ((options = {}) => {
 
             if (cssChunk.map) {
               yield new Promise((resolve, reject) => {
-                fs__default["default"].writeFile(cssMapOutputPath, cssChunk.map, err => err ? reject(err) : resolve());
+                fs__default["default"].writeFile(cssMapOutputPath, JSON.stringify(cssChunk.map), err => err ? reject(err) : resolve());
               });
             }
 
