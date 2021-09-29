@@ -1,19 +1,68 @@
 'use strict';
 
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var path = _interopDefault(require('path'));
-var fs = _interopDefault(require('fs'));
+var path = require('path');
+var fs = require('fs');
 var rollupPluginutils = require('rollup-pluginutils');
-var Concat = _interopDefault(require('concat-with-sourcemaps'));
-var series = _interopDefault(require('promise.series'));
-var importCwd = _interopDefault(require('import-cwd'));
-var postcss = _interopDefault(require('postcss'));
-var findPostcssConfig = _interopDefault(require('postcss-load-config'));
-var reserved = _interopDefault(require('reserved-words'));
-var pify = _interopDefault(require('pify'));
-var resolve = _interopDefault(require('resolve'));
-var PQueue = _interopDefault(require('p-queue'));
+var Concat = require('concat-with-sourcemaps');
+var series = require('promise.series');
+var importCwd = require('import-cwd');
+var postcss = require('postcss');
+var findPostcssConfig = require('postcss-load-config');
+var safeIdentifier = require('safe-identifier');
+var pify = require('pify');
+var resolve = require('resolve');
+var PQueue = require('p-queue');
+
+function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+var path__default = /*#__PURE__*/_interopDefaultLegacy(path);
+var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs);
+var Concat__default = /*#__PURE__*/_interopDefaultLegacy(Concat);
+var series__default = /*#__PURE__*/_interopDefaultLegacy(series);
+var importCwd__default = /*#__PURE__*/_interopDefaultLegacy(importCwd);
+var postcss__default = /*#__PURE__*/_interopDefaultLegacy(postcss);
+var findPostcssConfig__default = /*#__PURE__*/_interopDefaultLegacy(findPostcssConfig);
+var pify__default = /*#__PURE__*/_interopDefaultLegacy(pify);
+var resolve__default = /*#__PURE__*/_interopDefaultLegacy(resolve);
+var PQueue__default = /*#__PURE__*/_interopDefaultLegacy(PQueue);
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
@@ -66,43 +115,84 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
-function ownKeys(object, enumerableOnly) {
-  var keys = Object.keys(object);
-
-  if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object);
-    if (enumerableOnly) symbols = symbols.filter(function (sym) {
-      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-    });
-    keys.push.apply(keys, symbols);
-  }
-
-  return keys;
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(o);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
 }
 
-function _objectSpread2(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
 
-    if (i % 2) {
-      ownKeys(Object(source), true).forEach(function (key) {
-        _defineProperty(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(Object(source)).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
+}
+
+function _createForOfIteratorHelper(o, allowArrayLike) {
+  var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
+
+  if (!it) {
+    if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+      if (it) o = it;
+      var i = 0;
+
+      var F = function () {};
+
+      return {
+        s: F,
+        n: function () {
+          if (i >= o.length) return {
+            done: true
+          };
+          return {
+            done: false,
+            value: o[i++]
+          };
+        },
+        e: function (e) {
+          throw e;
+        },
+        f: F
+      };
     }
+
+    throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
-  return target;
+  var normalCompletion = true,
+      didErr = false,
+      err;
+  return {
+    s: function () {
+      it = it.call(o);
+    },
+    n: function () {
+      var step = it.next();
+      normalCompletion = step.done;
+      return step;
+    },
+    e: function (e) {
+      didErr = true;
+      err = e;
+    },
+    f: function () {
+      try {
+        if (!normalCompletion && it.return != null) it.return();
+      } finally {
+        if (didErr) throw err;
+      }
+    }
+  };
 }
 
-const humanlizePath = filepath => path.relative(process.cwd(), filepath);
-
+/* eslint import/no-anonymous-default-export: [2, {"allowArrowFunction": true}] */
 var normalizePath = (path => path && path.replace(/\\+/g, '/'));
+
+const humanlizePath = filepath => normalizePath(path__default["default"].relative(process.cwd(), filepath));
 
 const styleInjectPath = require.resolve('style-inject/dist/style-inject.es').replace(/[\\/]+/g, '/');
 
@@ -111,7 +201,7 @@ function loadConfig(id, {
   path: configPath
 }) {
   const handleError = err => {
-    if (err.message.indexOf('No PostCSS Config found') === -1) {
+    if (!err.message.includes('No PostCSS Config found')) {
       throw err;
     } // Return empty options for PostCSS
 
@@ -119,47 +209,45 @@ function loadConfig(id, {
     return {};
   };
 
-  configPath = configPath ? path.resolve(configPath) : path.dirname(id);
+  configPath = configPath ? path__default["default"].resolve(configPath) : path__default["default"].dirname(id);
   const ctx = {
     file: {
-      extname: path.extname(id),
-      dirname: path.dirname(id),
-      basename: path.basename(id)
+      extname: path__default["default"].extname(id),
+      dirname: path__default["default"].dirname(id),
+      basename: path__default["default"].basename(id)
     },
     options: configOptions || {}
   };
-  return findPostcssConfig(ctx, configPath).catch(handleError);
+  return findPostcssConfig__default["default"](ctx, configPath).catch(handleError);
 }
 
-function escapeClassNameDashes(str) {
-  return str.replace(/-+/g, match => {
+function escapeClassNameDashes(string) {
+  return string.replace(/-+/g, match => {
     return `$${match.replace(/-/g, '_')}$`;
   });
 }
 
 function ensureClassName(name) {
   name = escapeClassNameDashes(name);
-
-  if (reserved.check(name)) {
-    name = `$${name}$`;
-  }
-
-  return name;
+  return safeIdentifier.identifier(name, false);
 }
 
 function ensurePostCSSOption(option) {
-  return typeof option === 'string' ? importCwd(option) : option;
+  return typeof option === 'string' ? importCwd__default["default"](option) : option;
 }
 
 function isModuleFile(file) {
   return /\.module\.[a-z]{2,6}$/.test(file);
 }
+/* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
+
 
 var postcssLoader = {
   name: 'postcss',
   alwaysProcess: true,
 
   // `test` option is dynamically set in ./loaders
+  // eslint-disable-next-line complexity
   process({
     code,
     map
@@ -173,15 +261,16 @@ var postcssLoader = {
       const shouldExtract = options.extract;
       const shouldInject = options.inject;
       const modulesExported = {};
-      const autoModules = options.autoModules !== false && isModuleFile(_this.id);
-      const supportModules = options.modules || autoModules;
+      const autoModules = options.autoModules !== false && options.onlyModules !== true;
+      const isAutoModule = autoModules && isModuleFile(_this.id);
+      const supportModules = autoModules ? isAutoModule : options.modules;
 
       if (supportModules) {
-        plugins.push(require('postcss-modules')(_objectSpread2({
+        plugins.unshift(require('postcss-modules')(_objectSpread2(_objectSpread2({
           // In tests
           // Skip hash in names since css content on windows and linux would differ because of `new line` (\r?\n)
           generateScopedName: process.env.ROLLUP_POSTCSS_TEST ? '[name]_[local]' : '[name]_[local]__[hash:base64:5]'
-        }, options.modules, {
+        }, options.modules), {}, {
           getJSON(filepath, json, outpath) {
             modulesExported[filepath] = json;
 
@@ -198,10 +287,11 @@ var postcssLoader = {
         plugins.push(require('cssnano')(options.minimize));
       }
 
-      const postcssOpts = _objectSpread2({}, _this.options.postcss, {}, config.options, {
+      const postcssOptions = _objectSpread2(_objectSpread2(_objectSpread2({}, _this.options.postcss), config.options), {}, {
+        // Allow overriding `to` for some plugins that are relying on this value
+        to: options.to || _this.id,
         // Followings are never modified by user config config
         from: _this.id,
-        to: _this.id,
         map: _this.sourceMap ? shouldExtract ? {
           inline: false,
           annotation: false
@@ -211,78 +301,69 @@ var postcssLoader = {
         } : false
       });
 
-      delete postcssOpts.plugins;
-      postcssOpts.parser = ensurePostCSSOption(postcssOpts.parser);
-      postcssOpts.syntax = ensurePostCSSOption(postcssOpts.syntax);
-      postcssOpts.stringifier = ensurePostCSSOption(postcssOpts.stringifier);
+      delete postcssOptions.plugins;
+      postcssOptions.parser = ensurePostCSSOption(postcssOptions.parser);
+      postcssOptions.syntax = ensurePostCSSOption(postcssOptions.syntax);
+      postcssOptions.stringifier = ensurePostCSSOption(postcssOptions.stringifier);
 
-      if (map && postcssOpts.map) {
-        postcssOpts.map.prev = typeof map === 'string' ? JSON.parse(map) : map;
+      if (map && postcssOptions.map) {
+        postcssOptions.map.prev = typeof map === 'string' ? JSON.parse(map) : map;
       }
 
       if (plugins.length === 0) {
         // Prevent from postcss warning:
         // You did not set any plugins, parser, or stringifier. Right now, PostCSS does nothing. Pick plugins for your case on https://www.postcss.parts/ and use them in postcss.config.js
-        const noopPlugin = postcss.plugin('postcss-noop-plugin', () => () => {
-          /* noop */
-        });
+        const noopPlugin = () => {
+          return {
+            postcssPlugin: 'postcss-noop-plugin',
+
+            Once() {}
+
+          };
+        };
+
         plugins.push(noopPlugin());
       }
 
-      const res = yield postcss(plugins).process(code, postcssOpts);
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
+      const result = yield postcss__default["default"](plugins).process(code, postcssOptions);
+
+      var _iterator = _createForOfIteratorHelper(result.messages),
+          _step;
 
       try {
-        for (var _iterator = res.messages[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          const msg = _step.value;
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          const message = _step.value;
 
-          if (msg.type === 'dependency') {
-            _this.dependencies.add(msg.file);
+          if (message.type === 'dependency') {
+            _this.dependencies.add(message.file);
           }
         }
       } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
+        _iterator.e(err);
       } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
+        _iterator.f();
       }
 
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
+      var _iterator2 = _createForOfIteratorHelper(result.warnings()),
+          _step2;
 
       try {
-        for (var _iterator2 = res.warnings()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
           const warning = _step2.value;
+
+          if (!warning.message) {
+            warning.message = warning.text;
+          }
 
           _this.warn(warning);
         }
       } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
+        _iterator2.e(err);
       } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
-            _iterator2.return();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
+        _iterator2.f();
       }
 
-      const outputMap = res.map && JSON.parse(res.map.toString());
+      const outputMap = result.map && JSON.parse(result.map.toString());
 
       if (outputMap && outputMap.sources) {
         outputMap.sources = outputMap.sources.map(v => normalizePath(v));
@@ -312,19 +393,22 @@ var postcssLoader = {
         }
       }
 
+      const cssVariableName = safeIdentifier.identifier('css', true);
+
       if (shouldExtract) {
         output += `export default ${JSON.stringify(modulesExported[_this.id])};`;
         extracted = {
           id: _this.id,
-          code: res.css,
+          code: result.css,
           map: outputMap
         };
       } else {
-        output += `var css = ${JSON.stringify(res.css)};\nexport default ${supportModules ? JSON.stringify(modulesExported[_this.id]) : 'css'};`;
+        const module = supportModules ? JSON.stringify(modulesExported[_this.id]) : cssVariableName;
+        output += `var ${cssVariableName} = ${JSON.stringify(result.css)};\n` + `export default ${module};\n` + `export var stylesheet=${JSON.stringify(result.css)};`;
       }
 
       if (!shouldExtract && shouldInject) {
-        output += `\nimport styleInject from '${styleInjectPath}';\nstyleInject(css${Object.keys(options.inject).length > 0 ? `,${JSON.stringify(options.inject)}` : ''});`;
+        output += typeof options.inject === 'function' ? options.inject(cssVariableName, _this.id) : '\n' + `import styleInject from '${styleInjectPath}';\n` + `styleInject(${cssVariableName}${Object.keys(options.inject).length > 0 ? `,${JSON.stringify(options.inject)}` : ''});`;
       }
 
       return {
@@ -341,29 +425,31 @@ function loadModule(moduleId) {
   // Trying to load module normally (relative to plugin directory)
   try {
     return require(moduleId);
-  } catch (err) {} // Ignore error
-  // Then, trying to load it relative to CWD
+  } catch (_unused) {// Ignore error
+  } // Then, trying to load it relative to CWD
 
 
-  return importCwd.silent(moduleId);
+  return importCwd__default["default"].silent(moduleId);
 }
 
 // See: https://github.com/sass/node-sass/issues/857
 
 const threadPoolSize = process.env.UV_THREADPOOL_SIZE || 4;
-const workQueue = new PQueue({
+const workQueue = new PQueue__default["default"]({
   concurrency: threadPoolSize - 1
 });
-const moduleRe = /^~([a-z0-9]|@).+/i;
+const moduleRe = /^~([a-z\d]|@).+/i;
 
 const getUrlOfPartial = url => {
-  const parsedUrl = path.parse(url);
-  return `${parsedUrl.dir}${path.sep}_${parsedUrl.base}`;
+  const parsedUrl = path__default["default"].parse(url);
+  return `${parsedUrl.dir}${path__default["default"].sep}_${parsedUrl.base}`;
 };
 
-const resolvePromise = pify(resolve); // List of supported SASS modules in the order of preference
+const resolvePromise = pify__default["default"](resolve__default["default"]); // List of supported SASS modules in the order of preference
 
 const sassModuleIds = ['node-sass', 'sass'];
+/* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
+
 var sassLoader = {
   name: 'sass',
   test: /\.(sass|scss)$/,
@@ -373,10 +459,11 @@ var sassLoader = {
   }) {
     return new Promise((resolve, reject) => {
       const sass = loadSassOrThrow();
-      const render = pify(sass.render.bind(sass));
-      return workQueue.add(() => render(_objectSpread2({}, this.options, {
+      const render = pify__default["default"](sass.render.bind(sass));
+      const data = this.options.data || '';
+      workQueue.add(() => render(_objectSpread2(_objectSpread2({}, this.options), {}, {
         file: this.id,
-        data: code,
+        data: data + code,
         indentedSyntax: /\.sass$/.test(this.id),
         sourceMap: this.sourceMap,
         importer: [(url, importer, done) => {
@@ -386,7 +473,7 @@ var sassLoader = {
           const moduleUrl = url.slice(1);
           const partialUrl = getUrlOfPartial(moduleUrl);
           const options = {
-            basedir: path.dirname(importer),
+            basedir: path__default["default"].dirname(importer),
             extensions: ['.scss', '.sass', '.css']
           };
 
@@ -405,42 +492,32 @@ var sassLoader = {
           }; // Give precedence to importing a partial
 
 
-          resolvePromise(partialUrl, options).then(finishImport).catch(err => {
-            if (err.code === 'MODULE_NOT_FOUND' || err.code === 'ENOENT') {
+          resolvePromise(partialUrl, options).then(finishImport).catch(error => {
+            if (error.code === 'MODULE_NOT_FOUND' || error.code === 'ENOENT') {
               resolvePromise(moduleUrl, options).then(finishImport).catch(next);
             } else {
               next();
             }
           });
         }].concat(this.options.importer || [])
-      })).then(res => {
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
+      })).then(result => {
+        var _iterator = _createForOfIteratorHelper(result.stats.includedFiles),
+            _step;
 
         try {
-          for (var _iterator = res.stats.includedFiles[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
             const file = _step.value;
             this.dependencies.add(file);
           }
         } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
+          _iterator.e(err);
         } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return != null) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
+          _iterator.f();
         }
 
         resolve({
-          code: res.css.toString(),
-          map: res.map && res.map.toString()
+          code: result.css.toString(),
+          map: result.map && result.map.toString()
         });
       }).catch(reject));
     });
@@ -450,12 +527,11 @@ var sassLoader = {
 
 function loadSassOrThrow() {
   // Loading one of the supported modules
-  var _iteratorNormalCompletion2 = true;
-  var _didIteratorError2 = false;
-  var _iteratorError2 = undefined;
+  var _iterator2 = _createForOfIteratorHelper(sassModuleIds),
+      _step2;
 
   try {
-    for (var _iterator2 = sassModuleIds[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+    for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
       const moduleId = _step2.value;
       const module = loadModule(moduleId);
 
@@ -465,22 +541,15 @@ function loadSassOrThrow() {
     } // Throwing exception if module can't be loaded
 
   } catch (err) {
-    _didIteratorError2 = true;
-    _iteratorError2 = err;
+    _iterator2.e(err);
   } finally {
-    try {
-      if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
-        _iterator2.return();
-      }
-    } finally {
-      if (_didIteratorError2) {
-        throw _iteratorError2;
-      }
-    }
+    _iterator2.f();
   }
 
-  throw new Error(`You need to install one of the following packages: ` + sassModuleIds.map(moduleId => `"${moduleId}"`).join(', ') + ' ' + `in order to process SASS files`);
+  throw new Error('You need to install one of the following packages: ' + sassModuleIds.map(moduleId => `"${moduleId}"`).join(', ') + ' ' + 'in order to process SASS files');
 }
+
+/* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
 
 var stylusLoader = {
   name: 'stylus',
@@ -495,38 +564,29 @@ var stylusLoader = {
       const stylus = loadModule('stylus');
 
       if (!stylus) {
-        throw new Error(`You need to install "stylus" packages in order to process Stylus files`);
+        throw new Error('You need to install "stylus" packages in order to process Stylus files');
       }
 
-      const style = stylus(code, _objectSpread2({}, _this.options, {
+      const style = stylus(code, _objectSpread2(_objectSpread2({}, _this.options), {}, {
         filename: _this.id,
         sourcemap: _this.sourceMap && {}
       }));
-      const css = yield pify(style.render.bind(style))();
+      const css = yield pify__default["default"](style.render.bind(style))();
       const deps = style.deps();
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
+
+      var _iterator = _createForOfIteratorHelper(deps),
+          _step;
 
       try {
-        for (var _iterator = deps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
           const dep = _step.value;
 
           _this.dependencies.add(dep);
         }
       } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
+        _iterator.e(err);
       } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
+        _iterator.f();
       }
 
       return {
@@ -537,6 +597,8 @@ var stylusLoader = {
   }
 
 };
+
+/* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
 
 var lessLoader = {
   name: 'less',
@@ -551,40 +613,30 @@ var lessLoader = {
       const less = loadModule('less');
 
       if (!less) {
-        throw new Error(`You need to install "less" packages in order to process Less files`);
+        throw new Error('You need to install "less" packages in order to process Less files');
       }
 
-      let _ref = yield pify(less.render.bind(less))(code, _objectSpread2({}, _this.options, {
+      let _yield$pify = yield pify__default["default"](less.render.bind(less))(code, _objectSpread2(_objectSpread2({}, _this.options), {}, {
         sourceMap: _this.sourceMap && {},
         filename: _this.id
       })),
-          css = _ref.css,
-          map = _ref.map,
-          imports = _ref.imports;
+          css = _yield$pify.css,
+          map = _yield$pify.map,
+          imports = _yield$pify.imports;
 
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
+      var _iterator = _createForOfIteratorHelper(imports),
+          _step;
 
       try {
-        for (var _iterator = imports[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
           const dep = _step.value;
 
           _this.dependencies.add(dep);
         }
       } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
+        _iterator.e(err);
       } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return != null) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
+        _iterator.f();
       }
 
       if (map) {
@@ -625,9 +677,11 @@ class Loaders {
     this.loaders = [];
     const extensions = options.extensions || ['.css', '.sss', '.pcss'];
 
-    postcssLoader.test = filepath => extensions.some(ext => path.extname(filepath) === ext);
+    const customPostcssLoader = _objectSpread2(_objectSpread2({}, postcssLoader), {}, {
+      test: filepath => extensions.some(ext => path__default["default"].extname(filepath) === ext)
+    });
 
-    this.registerLoader(postcssLoader);
+    this.registerLoader(customPostcssLoader);
     this.registerLoader(sassLoader);
     this.registerLoader(stylusLoader);
     this.registerLoader(lessLoader);
@@ -675,11 +729,13 @@ class Loaders {
     code,
     map
   }, context) {
-    return series(this.use.slice().reverse().map(([name, options]) => {
+    return series__default["default"](this.use.slice().reverse().map(([name, options]) => {
       const loader = this.getLoader(name);
-      const loaderContext = Object.assign({
+
+      const loaderContext = _objectSpread2({
         options: options || {}
       }, context);
+
       return v => {
         if (loader.alwaysProcess || matchFile(loaderContext.id, loader.test)) {
           return loader.process.call(loaderContext, v);
@@ -711,6 +767,30 @@ function inferOption(option, defaultValue) {
   if (option && typeof option === 'object') return option;
   return option ? {} : defaultValue;
 }
+/**
+ * Recursively get the correct import order from rollup
+ * We only process a file once
+ *
+ * @param {string} id
+ * @param {Function} getModuleInfo
+ * @param {Set<string>} seen
+ */
+
+
+function getRecursiveImportOrder(id, getModuleInfo, seen = new Set()) {
+  if (seen.has(id)) {
+    return [];
+  }
+
+  seen.add(id);
+  const result = [id];
+  getModuleInfo(id).importedIds.forEach(importFile => {
+    result.push(...getRecursiveImportOrder(importFile, getModuleInfo, seen));
+  });
+  return result;
+}
+/* eslint import/no-anonymous-default-export: [2, {"allowArrowFunction": true}] */
+
 
 var index = ((options = {}) => {
   const filter = rollupPluginutils.createFilter(options.include, options.exclude);
@@ -718,12 +798,13 @@ var index = ((options = {}) => {
   const sourceMap = options.sourceMap;
   const postcssLoaderOptions = {
     /** Inject CSS as `<style>` to `<head>` */
-    inject: inferOption(options.inject, {}),
+    inject: typeof options.inject === 'function' ? options.inject : inferOption(options.inject, {}),
 
     /** Extract CSS */
     extract: typeof options.extract === 'undefined' ? false : options.extract,
 
     /** CSS modules */
+    onlyModules: options.modules === true,
     modules: inferOption(options.modules, false),
     namedExports: options.namedExports,
 
@@ -736,6 +817,9 @@ var index = ((options = {}) => {
     /** Postcss config file */
     config: inferOption(options.config, {}),
 
+    /** PostCSS target filename hint, for plugins that are relying on it */
+    to: options.to,
+
     /** PostCSS options */
     postcss: {
       parser: options.parser,
@@ -745,7 +829,14 @@ var index = ((options = {}) => {
       exec: options.exec
     }
   };
-  const use = options.use || ['sass', 'stylus', 'less'];
+  let use = ['sass', 'stylus', 'less'];
+
+  if (Array.isArray(options.use)) {
+    use = options.use;
+  } else if (options.use !== null && typeof options.use === 'object') {
+    use = [['sass', options.use.sass || {}], ['stylus', options.use.stylus || {}], ['less', options.use.less || {}]];
+  }
+
   use.unshift(['postcss', postcssLoaderOptions]);
   const loaders = new Loaders({
     use,
@@ -775,39 +866,30 @@ var index = ((options = {}) => {
           warn: _this.warn.bind(_this),
           plugin: _this
         };
-        const res = yield loaders.process({
+        const result = yield loaders.process({
           code,
           map: undefined
         }, loaderContext);
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
+
+        var _iterator = _createForOfIteratorHelper(loaderContext.dependencies),
+            _step;
 
         try {
-          for (var _iterator = loaderContext.dependencies[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
             const dep = _step.value;
 
             _this.addWatchFile(dep);
           }
         } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
+          _iterator.e(err);
         } finally {
-          try {
-            if (!_iteratorNormalCompletion && _iterator.return != null) {
-              _iterator.return();
-            }
-          } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
-            }
-          }
+          _iterator.f();
         }
 
         if (postcssLoaderOptions.extract) {
-          extracted.set(id, res.extracted);
+          extracted.set(id, result.extracted);
           return {
-            code: res.code,
+            code: result.code,
             map: {
               mappings: ''
             }
@@ -815,42 +897,61 @@ var index = ((options = {}) => {
         }
 
         return {
-          code: res.code,
-          map: res.map || {
+          code: result.code,
+          map: result.map || {
             mappings: ''
           }
         };
       })();
     },
 
-    generateBundle(opts, bundle) {
-      return _asyncToGenerator(function* () {
-        if (extracted.size === 0) return; // TODO: support `[hash]`
+    augmentChunkHash() {
+      if (extracted.size === 0) return; // eslint-disable-next-line unicorn/no-reduce
 
-        const dir = opts.dir || path.dirname(opts.file);
-        const file = opts.file || path.join(opts.dir, Object.keys(bundle).find(fileName => bundle[fileName].isEntry));
+      const extractedValue = [...extracted].reduce((object, [key, value]) => _objectSpread2(_objectSpread2({}, object), {}, {
+        [key]: value
+      }), {});
+      return JSON.stringify(extractedValue);
+    },
+
+    generateBundle(options_, bundle) {
+      var _this2 = this;
+
+      return _asyncToGenerator(function* () {
+        if (extracted.size === 0 || !(options_.dir || options_.file)) return; // eslint-disable-next-line no-warning-comments
+        // TODO: support `[hash]`
+
+        const dir = options_.dir || path__default["default"].dirname(options_.file);
+        const file = options_.file || path__default["default"].join(options_.dir, Object.keys(bundle).find(fileName => bundle[fileName].isEntry));
 
         const getExtracted = () => {
-          const fileName = typeof postcssLoaderOptions.extract === 'string' ? path.relative(dir, postcssLoaderOptions.extract) : `${path.basename(file, path.extname(file))}.css`;
-          const concat = new Concat(true, fileName, '\n');
-          const entries = Array.from(extracted.values());
-          const modules = bundle[path.relative(dir, file)].modules;
+          let fileName = `${path__default["default"].basename(file, path__default["default"].extname(file))}.css`;
+
+          if (typeof postcssLoaderOptions.extract === 'string') {
+            fileName = path__default["default"].isAbsolute(postcssLoaderOptions.extract) ? normalizePath(path__default["default"].relative(dir, postcssLoaderOptions.extract)) : normalizePath(postcssLoaderOptions.extract);
+          }
+
+          const concat = new Concat__default["default"](true, fileName, '\n');
+          const entries = [...extracted.values()];
+          const _bundle$normalizePath = bundle[normalizePath(path__default["default"].relative(dir, file))],
+                modules = _bundle$normalizePath.modules,
+                facadeModuleId = _bundle$normalizePath.facadeModuleId;
 
           if (modules) {
-            const fileList = Object.keys(modules);
-            entries.sort((a, b) => fileList.indexOf(a.id) - fileList.indexOf(b.id));
+            const moduleIds = getRecursiveImportOrder(facadeModuleId, _this2.getModuleInfo);
+            entries.sort((a, b) => moduleIds.indexOf(a.id) - moduleIds.indexOf(b.id));
           }
 
           for (var _i = 0, _entries = entries; _i < _entries.length; _i++) {
-            const res = _entries[_i];
-            const relative = path.relative(dir, res.id);
-            const map = res.map || null;
+            const result = _entries[_i];
+            const relative = normalizePath(path__default["default"].relative(dir, result.id));
+            const map = result.map || null;
 
             if (map) {
               map.file = fileName;
             }
 
-            concat.add(relative, res.code, map);
+            concat.add(relative, result.code, map);
           }
 
           let code = concat.content;
@@ -858,7 +959,7 @@ var index = ((options = {}) => {
           if (sourceMap === 'inline') {
             code += `\n/*# sourceMappingURL=data:application/json;base64,${Buffer.from(concat.sourceMap, 'utf8').toString('base64')}*/`;
           } else if (sourceMap === true) {
-            code += `\n/*# sourceMappingURL=${fileName}.map */`;
+            code += `\n/*# sourceMappingURL=${path__default["default"].basename(fileName)}.map */`;
           }
 
           return {
@@ -885,21 +986,21 @@ var index = ((options = {}) => {
 
 
         if (postcssLoaderOptions.minimize) {
-          const cssOpts = postcssLoaderOptions.minimize;
-          cssOpts.from = codeFileName;
+          const cssOptions = {};
+          cssOptions.from = codeFileName;
 
           if (sourceMap === 'inline') {
-            cssOpts.map = {
+            cssOptions.map = {
               inline: true
             };
           } else if (sourceMap === true && map) {
-            cssOpts.map = {
+            cssOptions.map = {
               prev: map
             };
-            cssOpts.to = codeFileName;
+            cssOptions.to = codeFileName;
           }
 
-          const result = yield require('cssnano').process(code, cssOpts);
+          const result = yield require('cssnano')(postcssLoaderOptions.minimize).process(code, cssOptions);
           code = result.css;
 
           if (sourceMap === true && result.map && result.map.toString) {
@@ -907,20 +1008,18 @@ var index = ((options = {}) => {
           }
         }
 
-        const codeFile = {
+        _this2.emitFile({
           fileName: codeFileName,
-          isAsset: true,
+          type: 'asset',
           source: code
-        };
-        bundle[codeFile.fileName] = codeFile;
+        });
 
         if (map) {
-          const mapFile = {
+          _this2.emitFile({
             fileName: mapFileName,
-            isAsset: true,
+            type: 'asset',
             source: map
-          };
-          bundle[mapFile.fileName] = mapFile;
+          });
         }
       })();
     },
@@ -928,28 +1027,34 @@ var index = ((options = {}) => {
     renderChunk(code, chunk, option) {
       return _asyncToGenerator(function* () {
         if (option.dir && options.preserveModules && (chunk.facadeModuleId || '').endsWith('.css')) {
-          const cssName = path.basename(chunk.facadeModuleId);
+          const cssName = path__default["default"].basename(chunk.facadeModuleId);
           const cssOutputName = cssName.replace('.module', '');
           const cssChunk = [...extracted.values()].find(({
             id
-          }) => path.basename(id) === cssName);
+          }) => path__default["default"].basename(id) === cssName);
 
           if (cssChunk) {
-            const cssOutputPath = path.resolve(option.dir, path.dirname(chunk.fileName) + '/' + cssOutputName);
+            const cssOutputPath = path__default["default"].resolve(option.dir, path__default["default"].dirname(chunk.fileName) + '/' + cssOutputName);
             const cssMapOutputPath = cssOutputPath + '.map';
 
             try {
-              yield fs.promises.mkdir(path.dirname(cssOutputPath), {
-                recursive: true
+              yield new Promise((resolve, reject) => {
+                fs__default["default"].mkdir(path__default["default"].dirname(cssOutputPath), {
+                  recursive: true
+                }, err => err ? reject(err) : resolve());
               });
-            } catch (_) {
+            } catch (_unused) {
               /* Already exists... */
             }
 
-            yield fs.promises.writeFile(cssOutputPath, cssChunk.code);
+            yield new Promise((resolve, reject) => {
+              fs__default["default"].writeFile(cssOutputPath, cssChunk.code, err => err ? reject(err) : resolve());
+            });
 
             if (cssChunk.map) {
-              yield fs.promises.writeFile(cssMapOutputPath, JSON.stringify(cssChunk.map));
+              yield new Promise((resolve, reject) => {
+                fs__default["default"].writeFile(cssMapOutputPath, cssChunk.map, err => err ? reject(err) : resolve());
+              });
             }
 
             return {
